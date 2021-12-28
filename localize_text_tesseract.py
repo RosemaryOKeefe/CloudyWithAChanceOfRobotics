@@ -9,10 +9,13 @@ import cv2
 #ap.add_argument("-c", "--min-conf", type=int, default=0, help=50)
 #args = vars(ap.parse_args())
 
+path = "NutritionData/BlackBeansNutritionLabel.jpg"
+min_conf = 50.0
+
 # load the input image, convert it from BGR to RGB channel ordering,
 # and use Tesseract to localize each area of text in the input image
 #image = cv2.imread(args["image"])
-image = cv2.imread("NutritionData/BlackBeansNutritionLabel.jpg")
+image = cv2.imread(path)
 rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 results = pytesseract.image_to_data(rgb, output_type=Output.DICT)
 
@@ -28,11 +31,7 @@ for i in range(0, len(results["text"])):
 	conf = float(results["conf"][i])
   
   # filter out weak confidence text localizations
-	if conf > 50:
-		# display the confidence and text to our terminal
-		print("Confidence: {}".format(conf))
-		print("Text: {}".format(text))
-		print("")
+	if conf > min_conf):
     
 		# strip out non-ASCII text so we can draw the text on the image
 		# using OpenCV, then draw a bounding box around the text along
