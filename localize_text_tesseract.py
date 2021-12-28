@@ -31,8 +31,7 @@ for i in range(0, len(results["text"])):
 	conf = float(results["conf"][i])
   
   # filter out weak confidence text localizations
-	if conf > min_conf):
-    
+	if (conf > min_conf):
 		# strip out non-ASCII text so we can draw the text on the image
 		# using OpenCV, then draw a bounding box around the text along
 		# with the text itself
