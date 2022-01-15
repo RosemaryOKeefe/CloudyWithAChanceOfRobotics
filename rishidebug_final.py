@@ -61,7 +61,7 @@ def ret_val(temp_word):
 #######################################
 # All file names and database names
 #######################################
-db_name = 'C:/Users/12086/Documents/python/data/Rishi_data1'
+db_name = 'C:/Users/12086/Documents/python/data/Output_db.csv'
 img_name = 'data/readme.jpg'
 
 #######################################
