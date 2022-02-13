@@ -23,8 +23,8 @@ import tkinter.messagebox
 #######################################
 # All file names and database names
 #######################################
-db_name = '/home/pi/Desktop/code/data/Output_db.csv'
-img_name = 'data/image.jpg'
+db_name =r'C:\Users\12086\Documents\python\data\Output_db.csv'
+img_name = 'data/carb.jpg'
 img_name_save = 'data/image_box.jpg'
 
 
@@ -95,7 +95,7 @@ myconfig = r'-c preserve_interword_spaces=1 --psm 6 --oem 3'
 img = cv2.imread(img_name)
 #img = cv2.imread(img_name, cv2.IMREAD_GRAYSCALE)
 #img = cv2.resize(img, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
-img = cv2.resize(img, None, fx=1.2, fy=1.2, interpolation=cv2.INTER_CUBIC)
+img = cv2.resize(img, None, fx=1.1, fy=1.2, interpolation=cv2.INTER_CUBIC)
 #img = cv2.resize(img, None, fx=1.2, fy=1.2, interpolation=cv2.INTER_LINEAR)
 
 #adaptive_threshold = cv2.adaptiveThreshold(img,255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY ,85, 11 )
@@ -129,7 +129,7 @@ print (list_of_words)
 #Call subroutine as same function used all time
 # save the values
 #######################################
-fdstr = ["Protein","Fat","Carbohydrate","Fiber","Sugars"]
+fdstr = ["Protein","Fat","Carb.","fiber","Sugars"]
 l = len(fdstr)
 
 
@@ -137,6 +137,16 @@ l = len(fdstr)
 #    print ("works")
 #else:
 #    Tkmsgshow("Few Keyword not found, Start again")
+String_Carb = "Carbohydrate"
+if "Carbohydrate" in list_of_words:
+    String_Carb = "Carbohydrate"
+    print ("Select Carbohydrate")
+if "Carb." in list_of_words:
+    String_Carb = "Carb."
+    print ("Selected Carb.")    
+fdstr[2] = String_Carb
+
+
 x=0
 while x < l:
     if fdstr[x] in list_of_words:
@@ -150,13 +160,12 @@ next_word = list_of_words[list_of_words.index('Protein') + 1]
 protein_val = ret_val(next_word)
 next_word1 = list_of_words[list_of_words.index('Fat') + 1]
 Fat_val = ret_val(next_word1)
-next_word2 = list_of_words[list_of_words.index('Carbohydrate') + 1]
+next_word2 = list_of_words[list_of_words.index(String_Carb) + 1]
 Carb_val = ret_val(next_word2)
 next_word3 = list_of_words[list_of_words.index('Fiber') + 1]
 Fiber_val = ret_val(next_word3)
 next_word4 = list_of_words[list_of_words.index('Sugars') + 1]
 Sugars_val = ret_val(next_word4)
-
 #Debug Statement
 # next_word_array = [next_word, next_word1, next_word2, next_word3, next_word4]
 
@@ -204,7 +213,7 @@ for i in range(amount_boxes):
     if float(data['conf'][i]) > 50:
         (x, y, width, height) = (data['left'][i], data['top'][i], data['width'][i], data['height'][i])
         img = cv2.rectangle(img, (x,y), (x+width, y+height), (0, 255, 0), 2)
-        img = cv2.putText(img, data['text'][i], (x, y+height-20), cv2.FONT_HERSHEY_PLAIN, 0.7, (0, 255, 0), 1, cv2.LINE_AA)
+        img = cv2.putText(img, data['text'][i], (x, y+height-20), cv2.FONT_HERSHEY_PLAIN, 0.7, (0, 0, 255), 1, cv2.LINE_AA)
 
 cv2.imwrite(img_name_save, img)
 resize = cv2.resize(img,(640,480))
@@ -230,5 +239,3 @@ else:
     print('Food does not have sufficient amount of fiber.')
 
 pop.destroy()
-
-
