@@ -18,10 +18,10 @@ imagename = "data/image.jpg"
 
 
 def run():
-    os.system('python rishidebug_final.py')
+    os.system('python nutrition_extract.py')
     
 def webcapture():
-    TIMER = int(20)
+    TIMER = int(10)
     #cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
     cap = cv2.VideoCapture(0)
     
@@ -34,23 +34,23 @@ def webcapture():
         
         prev = time.time()
         while TIMER >= 0:
-            ret, img = cap.read()
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            cv2.putText(img, str(TIMER),
+              ret, img = cap.read()
+              font = cv2.FONT_HERSHEY_SIMPLEX
+              cv2.putText(img, str(TIMER),
                             (200, 250), font,
                             7, (0, 255, 255),
                             4, cv2.LINE_AA)
-            cv2.imshow('Camera', img)
-            cv2.waitKey(125)
-            cur = time.time()
-            if cur-prev >= 1:
+              cv2.imshow('Camera', img)
+              cv2.waitKey(125)
+              cur = time.time()
+              if cur-prev >= 1:
                     prev = cur
                     TIMER = TIMER-1
-            else:
-                ret, img = cap.read()
-                cv2.imshow('Camera', img)
-                cv2.waitKey(125)
-                cv2.imwrite(imagename, img)
+              else:
+                    ret, img = cap.read()
+                    cv2.imshow('Camera', img)
+                    cv2.waitKey(125)
+                    cv2.imwrite(imagename, img)
         # close the camera
         cap.release()
         # close all the opened windows
