@@ -18,31 +18,31 @@ import numpy as np
 import os.path
 from tkinter import *
 import tkinter.messagebox
-
+import tkinter as tk
 
 #######################################
 # All file names and database names
 #######################################
-#db_name =r'C:\Users\12086\Documents\python\data\Output_db.csv'
-db_name = r'/home/pi/Desktop/code/data/Output_db.csv'
+db_name =r'C:\Users\12086\Documents\python\data\Output_db.csv'
+#db_name = r'/home/pi/Desktop/code/data/Output_db.csv'
 img_name = 'data/GB2.jpg'
 #img_name = 'data/image.jpg'
 img_name_save = 'data/image_box.jpg'
+img_process = 'data/img_process.jpg'
 
 
-#def count(x):
-#    length = len(x)
-#    numbers = 0
-#    letters = 0
-#    space = 0
-#    other = 0
-#    numbers = sum(c.isdigit() for c in x)
-#    letters = sum(c.isalpha() for c in x)
-#    spaces  = sum(c.isspace() for c in x)
-#    other  = len(x) - numbers - letters - spaces
-#
-#    print ("length,letters,numbers,space,other",x,length,letters,numbers,space,other)
-#    return length,letters,numbers,space,other
+
+#######################################
+##
+# Display the progress
+#######################################
+def WIP():
+    imgp = cv2.imread(img_process,1)
+    #imgr = cv2.resize(imgp,(640,480))
+    cv2.imshow('Image Processing', imgp)
+    cv2.waitKey(1000)
+    cv2.destroyAllWindows()
+    return
 
 #######################################
 ## Sub-function in python
@@ -80,12 +80,6 @@ def ret_val(temp_word):
     #print ("new value", temp_word, value_mg)
     return(value_mg)
 
-
-
-    
-    
-    
-
 #######################################
 ## Reading out the image
 ## improve quality of image
@@ -118,13 +112,16 @@ img = cv2.resize(img, None, fx=1.2, fy=1.2, interpolation=cv2.INTER_CUBIC)
 
 resize = cv2.resize(img,(640,480))
 cv2.imshow('Selected Image', resize)
-cv2.waitKey(1000)
+cv2.waitKey(5000)
 cv2.destroyAllWindows()
 
 text = pytesseract.image_to_string(img,lang='eng',config=myconfig)
 your_string = text
 list_of_words = your_string.split()
 print (list_of_words)
+
+######################################
+WIP()
 
 #######################################
 #Segmenting the label into areas of interest
@@ -158,6 +155,9 @@ while x < l:
         break
     x += 1
     
+######################################
+WIP()
+
 next_word = list_of_words[list_of_words.index('Protein') + 1]
 protein_val = ret_val(next_word)
 next_word1 = list_of_words[list_of_words.index('Fat') + 1]
@@ -171,14 +171,19 @@ Sugars_val = ret_val(next_word4)
 #Debug Statement
 # next_word_array = [next_word, next_word1, next_word2, next_word3, next_word4]
 
+######################################
+WIP()
+
+
 #######################################
 ##Label out the values of each nutrients.
 #######################################
 print ("Prot:", next_word,":",protein_val, "Fat:", next_word1,
        ":",Fat_val,"Carb:",next_word2,":", Carb_val,"Fiber:",
        next_word3,":",Fiber_val,"Sugar:", next_word4,":",Sugars_val)
-
-r_String = (protein_val, Fat_val,Carb_val,Fiber_val,Sugars_val)
+from datetime import datetime
+dt = datetime.now()
+r_String = (dt, protein_val, Fat_val,Carb_val,Fiber_val,Sugars_val)
 #Debug Statement
 #cv2.imshow('img', img)
 #cv2.waitKey(125)
@@ -188,7 +193,8 @@ r_String = (protein_val, Fat_val,Carb_val,Fiber_val,Sugars_val)
 # Putting data from code into database
 #######################################
 # Add Header to the file name
-r_Header = ["Protien","Fat","Carb","Fiber","Sugar","Sodium"]
+
+r_Header = ["ID","Protien","Fat","Carb","Fiber","Sugar","Sodium"]
 if False == os.path.exists(db_name):
    with open(db_name, 'w',encoding='UTF8',newline='') as f:
       writer = csv.writer(f)  
@@ -197,6 +203,9 @@ if False == os.path.exists(db_name):
 with open(db_name, 'a',encoding='UTF8',newline='') as f:
    writer = csv.writer(f)
    writer.writerow(r_String)
+
+######################################
+WIP()
 
 #############################
 # Display the image to user
@@ -220,24 +229,118 @@ for i in range(amount_boxes):
 cv2.imwrite(img_name_save, img)
 resize = cv2.resize(img,(640,480))
 cv2.imshow('OCR Boxed Image', resize)
-cv2.waitKey(3000)
+cv2.waitKey(5000)
 cv2.destroyAllWindows()
 
 
 ##################################
 #See if food is healthy or not in fiber
 ##################################
-pop=Tk()
-pop.geometry('640x200')
-pop.config(bg="blue")
 healthy_fiber = int(Fiber_val)/int(Carb_val)
-fdstr = "Carb=",Carb_val,"gms | Fiber=",Fiber_val,"gms"
-
 if healthy_fiber > 0.1:
-    tkinter.messagebox.showinfo("Message","Food is rich in fiber"+str(fdstr))
-    print('Food is rich in fiber.')
+    healthy_val = 'Rich Fiber'
 else:
-    tkinter.messagebox.showinfo("Message","Food does not have sufficient amount of fiber "+str(fdstr))
-    print('Food does not have sufficient amount of fiber.')
+    healthy_val = 'No Fiber'
+print(healthy_val)
+food='Pantry Staples'
+if protein_val < 8 and protein_val > 6:
+    print('food is protein')
+    food = 'Protein'
+if Sugars_val < 45 and Sugars_val > 11:
+    print('food is a Grain')
+    food = 'Grain'
 
-pop.destroy()
+
+
+r_Hdr = [("Health Status"),("   ●Fat"),("   ●Fiber"),("Category"),("Database ID")] 
+r_Str = [(healthy_val),(Fat_val),(Fiber_val),(food),(dt)]
+ 
+# find total number of rows and columns 
+r_matrix = [(r_Hdr[0], r_Str[0]),
+            (r_Hdr[1], r_Str[1]),
+            (r_Hdr[2], r_Str[2]),
+            (r_Hdr[3], r_Str[3]),
+            (r_Hdr[4], r_Str[4])]
+        
+# columns in list
+total_rows = len(r_matrix)
+total_columns = len(r_matrix[0])
+class Table:
+     
+    def __init__(self,root):
+         
+        # code for creating table
+        for i in range(total_rows):
+            for j in range(total_columns):
+
+                #print(r_Str[i])
+                self.e = Entry(root, width=17, fg='black',
+                       font=('Arial',16,'bold'), bg='white', relief=GROOVE)
+                #root.grid_rowconfigure(index=i, weight=0)
+                if j > 0:
+                    if i == 0:
+                        if healthy_val == 'Rich Fiber':
+                            self.e = Entry(root, width=17, fg='white',
+                               font=('Arial',16,'bold'), bg='green',relief=RAISED)
+                            health = 1
+                        else:
+                            self.e = Entry(root, width=17, fg='white',
+                                font=('Arial',16,'bold'), bg='red',relief=SUNKEN)
+                            health = 0                            
+                    elif i == 3:
+                        print('check')
+                        if health == 1:
+                            self.e = Entry(root, width=17, fg='white',
+                                font=('Arial',16,'bold'), bg='green',relief=SUNKEN)
+                        elif health == 0:
+                            self.e = Entry(root, width=17, fg='white',
+                                font=('Arial',16,'bold'), bg='red',relief=SUNKEN)
+
+                self.e.grid(row=i, column=j,padx=10,pady=10, ipadx=40,sticky = 'EW')
+                self.e.insert(END, r_matrix[i][j])
+
+        tk.Button(root,text="OK", command=root.destroy, fg='yellow', font=('Arial', 16,'bold'),bg='purple').grid(row=6, column=1, padx=10,pady=10, ipadx=40,sticky = 'EW')
+
+# create root window
+root = Tk()
+root.title('Nutrient Information')
+
+t = Table(root)
+#root.grid_columnconfigure(1, weight=1)
+root.mainloop()
+
+
+
+datadb = tk.Tk()
+datadb.geometry("500x200")
+datadb.resizable(width=True, height=True)
+datadb.title("Database")
+
+for i, col_name in enumerate(r_Header, start=1):
+    tk.Label(datadb, text=col_name, fg='blue', font='8').grid(row=3, column=i, padx=10)
+for i, col_name in enumerate(r_String, start=1):
+    tk.Label(datadb, text=col_name).grid(row=4, column=i, padx=15)
+
+
+tk.Label(datadb,fg='red').grid(row=5, column=4, padx=20)
+tk.Button(datadb,text="OK", command=datadb.destroy, fg='yellow', font=('Arial', 10),bg='purple').grid(row=6, column=4,padx=10,pady=10, ipadx=10,sticky = 'EW')
+
+datadb.mainloop()
+
+
+
+
+#pop=Tk()
+#pop.geometry('640x200')
+#pop.config(bg="blue")
+#healthy_fiber = int(Fiber_val)/int(Carb_val)
+#fdstr = "Carb=",Carb_val,"gms | Fiber=",Fiber_val,"gms"
+
+#if healthy_fiber > 0.1:
+#    tkinter.messagebox.showinfo("Message","Food is rich in fiber"+str(fdstr))
+#    print('Food is rich in fiber.')
+#else:
+#    tkinter.messagebox.showinfo("Message","Food does not have sufficient amount of fiber"+str(fdstr))
+#    print('Food does not have sufficient amount of fiber.')
+
+#pop.destroy()
