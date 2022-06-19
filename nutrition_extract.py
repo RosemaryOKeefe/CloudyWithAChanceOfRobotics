@@ -1,5 +1,7 @@
 #####################################
 # 1/15/2022 : Updated the code to add database output, all file names are added in string
+# 2/10/2022 : Updated to database
+# 3/01/2022 : Created subroutines and tkinter message boxes
 ####################################
 import re
 from re import M
@@ -8,8 +10,6 @@ import cv2
 from numpy.core.fromnumeric import resize
 import pytesseract
 from pytesseract import pytesseract
-#import PIL
-#from PIL import Image
 import csv
 import PIL.Image
 from pytesseract import Output
@@ -23,31 +23,27 @@ import tkinter as tk
 #######################################
 # All file names and database names
 #######################################
-db_name =r'C:\Users\12086\Documents\python\data\Output_db.csv'
-#db_name = r'/home/pi/Desktop/code/data/Output_db.csv'
+db_name =r'C:\Users\12086\Documents\python\data\Output_db.csv' # --> Raspberry pi only
+#db_name = r'/home/pi/Desktop/code/data/Output_db.csv'  # --> Used for laptop debug
 img_name = 'data/GB2.jpg'
 #img_name = 'data/image.jpg'
 img_name_save = 'data/image_box.jpg'
 img_process = 'data/img_process.jpg'
 
 
-
-#######################################
-##
-# Display the progress
-#######################################
-def WIP():
-    imgp = cv2.imread(img_process,1)
-    #imgr = cv2.resize(imgp,(640,480))
-    cv2.imshow('Image Processing', imgp)
-    cv2.waitKey(1000)
-    cv2.destroyAllWindows()
-    return
-
 #######################################
 ## Sub-function in python
-# Coverts to Grams
 #######################################
+
+# Display fixed banner image
+def WIP(dly, image_display):
+    imgp = cv2.imread(image_display,1)
+    #imgr = cv2.resize(imgp,(640,480))
+    cv2.imshow('Image Processing', imgp)
+    cv2.waitKey(dly)
+    cv2.destroyAllWindows()
+    return
+# Displays message based on msg
 def Tkmsgshow(msg):
     pop=Tk()
     pop.geometry('640x200')
@@ -55,7 +51,7 @@ def Tkmsgshow(msg):
     tkinter.messagebox.showinfo("Message",str(msg))
     pop.destroy()
     return
-
+# Computes to Grams and extracts values
 def ret_val(temp_word):
     name_cmp_mg = 'mg'
     name_cmp_g = 'g'
@@ -86,42 +82,27 @@ def ret_val(temp_word):
 ## Need to make it dynamic based on image quality and size .. To be worked on ... 
 #######################################
 myconfig = r'-c preserve_interword_spaces=1 --psm 11 --oem 3'
-
-
 img = cv2.imread(img_name)
 #img = cv2.imread(img_name, cv2.IMREAD_GRAYSCALE)
 #img = cv2.resize(img, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
 img = cv2.resize(img, None, fx=1.2, fy=1.2, interpolation=cv2.INTER_CUBIC)
 #img = cv2.resize(img, None, fx=1.2, fy=1.2, interpolation=cv2.INTER_LINEAR)
-
 #adaptive_threshold = cv2.adaptiveThreshold(img,255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY ,85, 11 )
-
 #height, width, _ = img.shape
-#print (height, width)
-
-
-###########
-# Covert img to text
-###########
-#gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-#threshold = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
-#invert = 255 - threshold
-#img = cv2.resize(img, None, fx=1.7, fy=1.7, interpolation=cv2.INTER_CUBIC)
-#data = pytesseract.image_to_string(threshold,lang='eng', config='--psm 6')
-#print(data)
 
 resize = cv2.resize(img,(640,480))
 cv2.imshow('Selected Image', resize)
 cv2.waitKey(5000)
 cv2.destroyAllWindows()
 
+# Covert img to text
 text = pytesseract.image_to_string(img,lang='eng',config=myconfig)
 your_string = text
 list_of_words = your_string.split()
 print (list_of_words)
 
 ######################################
-WIP()
+WIP(1000, img_process)
 
 #######################################
 #Segmenting the label into areas of interest
@@ -156,7 +137,8 @@ while x < l:
     x += 1
     
 ######################################
-WIP()
+WIP(1000, img_process)
+######################################
 
 next_word = list_of_words[list_of_words.index('Protein') + 1]
 protein_val = ret_val(next_word)
@@ -172,7 +154,8 @@ Sugars_val = ret_val(next_word4)
 # next_word_array = [next_word, next_word1, next_word2, next_word3, next_word4]
 
 ######################################
-WIP()
+WIP(1000, img_process)
+######################################
 
 
 #######################################
@@ -194,7 +177,7 @@ r_String = (dt, protein_val, Fat_val,Carb_val,Fiber_val,Sugars_val)
 #######################################
 # Add Header to the file name
 
-r_Header = ["ID","Protien","Fat","Carb","Fiber","Sugar","Sodium"]
+r_Header = ["ID","Protien","Fat","Carb","Fiber","Sugar" ]
 if False == os.path.exists(db_name):
    with open(db_name, 'w',encoding='UTF8',newline='') as f:
       writer = csv.writer(f)  
@@ -204,8 +187,10 @@ with open(db_name, 'a',encoding='UTF8',newline='') as f:
    writer = csv.writer(f)
    writer.writerow(r_String)
 
+f.close()
+
 ######################################
-WIP()
+WIP(1000, img_process)
 
 #############################
 # Display the image to user
@@ -234,13 +219,13 @@ cv2.destroyAllWindows()
 
 
 ##################################
-#See if food is healthy or not in fiber
+#Check : a) food is healthy or not in fiber b) Food category
 ##################################
 healthy_fiber = int(Fiber_val)/int(Carb_val)
 if healthy_fiber > 0.1:
     healthy_val = 'Rich Fiber'
 else:
-    healthy_val = 'No Fiber'
+    healthy_val = 'Low Fiber'
 print(healthy_val)
 food='Pantry Staples'
 if protein_val < 8 and protein_val > 6:
@@ -252,8 +237,8 @@ if Sugars_val < 45 and Sugars_val > 11:
 
 
 
-r_Hdr = [("Health Status"),("   ●Fat"),("   ●Fiber"),("Category"),("Database ID")] 
-r_Str = [(healthy_val),(Fat_val),(Fiber_val),(food),(dt)]
+r_Hdr = [("Health Status"),("   ●Carb"),("   ●Fiber"),("Category"),("Database ID")] 
+r_Str = [(healthy_val),(Carb_val),(Fiber_val),(food),(dt)]
  
 # find total number of rows and columns 
 r_matrix = [(r_Hdr[0], r_Str[0]),
@@ -310,37 +295,38 @@ t = Table(root)
 root.mainloop()
 
 
-
+##################################
+#Display : Database last few records
+##################################
 datadb = tk.Tk()
-datadb.geometry("500x200")
+datadb.geometry("800x250")
 datadb.resizable(width=True, height=True)
 datadb.title("Database")
 
+i=0
 for i, col_name in enumerate(r_Header, start=1):
-    tk.Label(datadb, text=col_name, fg='blue', font='8').grid(row=3, column=i, padx=10)
-for i, col_name in enumerate(r_String, start=1):
-    tk.Label(datadb, text=col_name).grid(row=4, column=i, padx=15)
+    tk.Label(datadb, text=col_name,bg='gray', fg='blue', font=('Arial',10,'bold')).grid(row=1, column=i, padx=10)
 
+file1 = open(db_name, 'r')
+Lines = file1.readlines()
+length = len(Lines) -5
+last_lines = Lines[-5:]  
+count=1
 
-tk.Label(datadb,fg='red').grid(row=5, column=4, padx=20)
-tk.Button(datadb,text="OK", command=datadb.destroy, fg='yellow', font=('Arial', 10),bg='purple').grid(row=6, column=4,padx=10,pady=10, ipadx=10,sticky = 'EW')
+# Strips the newline character
+for line in last_lines:
+    length += 1
+    count += 1
+    data = line.strip()
+    cs = data.split(",")
+    #print("Record{}: {}".format(length, line.strip()))
+    for i, col_name in enumerate(cs, start=1):    
+        tk.Label(datadb, text=col_name, fg='black', font=('Arial',10,'bold')).grid(row=count, column=i, padx=10)
+
+file1.close()
+tk.Label(datadb, text="Total Records: "+str(length), fg='blue', font=('Arial',15,'bold')).grid(row=count+1,column=1, padx=10)
+tk.Label(datadb,fg='red').grid(row=count+1, column=4, padx=20)
+tk.Button(datadb,text="OK", command=datadb.destroy, fg='yellow', font=('Arial', 10),bg='purple').grid(row=count+2, column=4,padx=10,pady=10, ipadx=10,sticky = 'EW')
 
 datadb.mainloop()
 
-
-
-
-#pop=Tk()
-#pop.geometry('640x200')
-#pop.config(bg="blue")
-#healthy_fiber = int(Fiber_val)/int(Carb_val)
-#fdstr = "Carb=",Carb_val,"gms | Fiber=",Fiber_val,"gms"
-
-#if healthy_fiber > 0.1:
-#    tkinter.messagebox.showinfo("Message","Food is rich in fiber"+str(fdstr))
-#    print('Food is rich in fiber.')
-#else:
-#    tkinter.messagebox.showinfo("Message","Food does not have sufficient amount of fiber"+str(fdstr))
-#    print('Food does not have sufficient amount of fiber.')
-
-#pop.destroy()
