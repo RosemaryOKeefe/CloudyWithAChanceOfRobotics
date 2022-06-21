@@ -84,4 +84,3 @@ btn3['font'] = myFont
 window.mainloop()   
 
 exit
-

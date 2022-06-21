@@ -23,10 +23,9 @@ import tkinter as tk
 #######################################
 # All file names and database names
 #######################################
-db_name =r'C:\Users\12086\Documents\python\data\Output_db.csv' # --> Raspberry pi only
-#db_name = r'/home/pi/Desktop/code/data/Output_db.csv'  # --> Used for laptop debug
-img_name = 'data/GB2.jpg'
-#img_name = 'data/image.jpg'
+#db_name =r'C:\Users\12086\Documents\python\data\Output_db.csv' # --> Used for laptop debug
+db_name = r'/home/pi/Desktop/code/data/Output_db.csv'  # --> Raspberry pi only
+img_name = 'data/h.jpg' #img_name = 'data/image.jpg'
 img_name_save = 'data/image_box.jpg'
 img_process = 'data/img_process.jpg'
 
@@ -55,6 +54,7 @@ def Tkmsgshow(msg):
 def ret_val(temp_word):
     name_cmp_mg = 'mg'
     name_cmp_g = 'g'
+    value_mg = 0
     #array_string = count(temp_word)
     if any((c in name_cmp_g) for c in temp_word):
         if sum(c.isdigit() for c in temp_word) > 0:
@@ -305,7 +305,7 @@ datadb.title("Database")
 
 i=0
 for i, col_name in enumerate(r_Header, start=1):
-    tk.Label(datadb, text=col_name,bg='gray', fg='blue', font=('Arial',10,'bold')).grid(row=1, column=i, padx=10)
+    tk.Label(datadb, text=col_name,bg='black', fg='white', font=('Arial',15,'bold')).grid(row=1, column=i, padx=10)
 
 file1 = open(db_name, 'r')
 Lines = file1.readlines()
@@ -321,12 +321,12 @@ for line in last_lines:
     cs = data.split(",")
     #print("Record{}: {}".format(length, line.strip()))
     for i, col_name in enumerate(cs, start=1):    
-        tk.Label(datadb, text=col_name, fg='black', font=('Arial',10,'bold')).grid(row=count, column=i, padx=10)
+        tk.Label(datadb, text=col_name, fg='black', font=('Arial',15,'bold')).grid(row=count, column=i, padx=10)
 
 file1.close()
 tk.Label(datadb, text="Total Records: "+str(length), fg='blue', font=('Arial',15,'bold')).grid(row=count+1,column=1, padx=10)
 tk.Label(datadb,fg='red').grid(row=count+1, column=4, padx=20)
-tk.Button(datadb,text="OK", command=datadb.destroy, fg='yellow', font=('Arial', 10),bg='purple').grid(row=count+2, column=4,padx=10,pady=10, ipadx=10,sticky = 'EW')
+
+tk.Button(datadb,text="OK", command=datadb.destroy, fg='yellow', font=('Arial', 15),bg='purple').grid(row=count+2, column=4,padx=10,pady=10, ipadx=10,sticky = 'EW')
 
 datadb.mainloop()
-

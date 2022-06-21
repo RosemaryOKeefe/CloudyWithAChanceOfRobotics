@@ -1,0 +1,18 @@
+-Execute code
+-Take 10 images of nutritional label
+  -This gives user some time to adjust to get a good image
+-Pick last image taken
+-Process image
+  -Interpolate and grayscale the image, which helps OCR read most of the text.
+-Box the image
+  -This shows that OCR has read most of the text
+-Database
+  -Then we find the value of each nutrient and save the values to our database
+-Show nutritional healthiness
+  -We divide fiber by carbohydrate to find if the food is rich in fiber or has low fiber.
+-Database (Shown)
+ -We create a ID which is mm/dd/yy and the time in microseconds, we know that a food can not be
+scanned by the microsecons so each food scanned has a unqie ID.
+  -As you can see the value of each value of each nutrient is the same as they 
+are written on the food can
+  -Stop the code
