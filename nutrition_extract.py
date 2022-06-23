@@ -34,7 +34,7 @@ img_process = 'data/img_process.jpg'
 ## Sub-function in python
 #######################################
 
-# Display fixed banner image
+# Display fixed CWACOR banner with logo
 def WIP(dly, image_display):
     imgp = cv2.imread(image_display,1)
     #imgr = cv2.resize(imgp,(640,480))
@@ -42,7 +42,7 @@ def WIP(dly, image_display):
     cv2.waitKey(dly)
     cv2.destroyAllWindows()
     return
-# Displays message based on msg
+# Displays messages on touch screen based on msg string
 def Tkmsgshow(msg):
     pop=Tk()
     pop.geometry('640x200')
@@ -50,7 +50,7 @@ def Tkmsgshow(msg):
     tkinter.messagebox.showinfo("Message",str(msg))
     pop.destroy()
     return
-# Computes to Grams and extracts values
+# Computes milligrams to Grams and extracts values
 def ret_val(temp_word):
     name_cmp_mg = 'mg'
     name_cmp_g = 'g'
@@ -78,8 +78,8 @@ def ret_val(temp_word):
 
 #######################################
 ## Reading out the image
-## improve quality of image
-## Need to make it dynamic based on image quality and size .. To be worked on ... 
+## improve readability of the image by resizing and using cubic interpolation
+## Would like to make it dynamic based on image quality and size .. To be worked on ... Need more powerful processor
 #######################################
 myconfig = r'-c preserve_interword_spaces=1 --psm 11 --oem 3'
 img = cv2.imread(img_name)
