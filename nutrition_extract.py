@@ -23,9 +23,10 @@ import tkinter as tk
 #######################################
 # All file names and database names
 #######################################
-#db_name =r'C:\Users\12086\Documents\python\data\Output_db.csv' # --> Used for laptop debug
-db_name = r'/home/pi/Desktop/code/data/Output_db.csv'  # --> Raspberry pi only
-img_name = 'data/h.jpg' #img_name = 'data/image.jpg'
+db_name =r'C:\Users\12086\Documents\python\data\Output_db.csv' # --> Raspberry pi only
+#db_name = r'/home/pi/Desktop/code/data/Output_db.csv'  # --> Used for laptop debug
+img_name = 'data/GB2.jpg'
+#img_name = 'data/image.jpg'
 img_name_save = 'data/image_box.jpg'
 img_process = 'data/img_process.jpg'
 
@@ -34,7 +35,7 @@ img_process = 'data/img_process.jpg'
 ## Sub-function in python
 #######################################
 
-# Display fixed CWACOR banner with logo
+# Display fixed banner image
 def WIP(dly, image_display):
     imgp = cv2.imread(image_display,1)
     #imgr = cv2.resize(imgp,(640,480))
@@ -42,7 +43,7 @@ def WIP(dly, image_display):
     cv2.waitKey(dly)
     cv2.destroyAllWindows()
     return
-# Displays messages on touch screen based on msg string
+# Displays message based on msg
 def Tkmsgshow(msg):
     pop=Tk()
     pop.geometry('640x200')
@@ -50,11 +51,10 @@ def Tkmsgshow(msg):
     tkinter.messagebox.showinfo("Message",str(msg))
     pop.destroy()
     return
-# Computes milligrams to Grams and extracts values
+# Computes to Grams and extracts values
 def ret_val(temp_word):
     name_cmp_mg = 'mg'
     name_cmp_g = 'g'
-    value_mg = 0
     #array_string = count(temp_word)
     if any((c in name_cmp_g) for c in temp_word):
         if sum(c.isdigit() for c in temp_word) > 0:
@@ -78,8 +78,8 @@ def ret_val(temp_word):
 
 #######################################
 ## Reading out the image
-## improve readability of the image by resizing and using cubic interpolation
-## Would like to make it dynamic based on image quality and size .. To be worked on ... Need more powerful processor
+## improve quality of image
+## Need to make it dynamic based on image quality and size .. To be worked on ... 
 #######################################
 myconfig = r'-c preserve_interword_spaces=1 --psm 11 --oem 3'
 img = cv2.imread(img_name)
@@ -142,7 +142,7 @@ WIP(1000, img_process)
 
 next_word = list_of_words[list_of_words.index('Protein') + 1]
 protein_val = ret_val(next_word)
-next_word1 = list_of_words[list_of_words.index('Fat') + 1]
+next_word1 = list_of_words[list_of_words.index('Saturated') + 2]
 Fat_val = ret_val(next_word1)
 next_word2 = list_of_words[list_of_words.index(String_Carb) + 1]
 Carb_val = ret_val(next_word2)
@@ -235,21 +235,26 @@ if Sugars_val < 45 and Sugars_val > 11:
     print('food is a Grain')
     food = 'Grain'
 
+healthy_Fat = int(Fat_val)
+if healthy_Fat > 15:
+    Satfat = 'Low Saturated Fat'
+else:
+    Satfat = 'Low Saturated Fat'
 
-
-r_Hdr = [("Health Status"),("   ●Carb"),("   ●Fiber"),("Category"),("Database ID")] 
-r_Str = [(healthy_val),(Carb_val),(Fiber_val),(food),(dt)]
+r_Hdr = [("Health Status"),('Saturated Fat'),("   ●Carb"),("   ●Fiber"),("Category"),("Database ID")] 
+r_Str = [(healthy_val),(Satfat),(Carb_val),(Fiber_val),(food),(dt)]
  
 # find total number of rows and columns 
 r_matrix = [(r_Hdr[0], r_Str[0]),
             (r_Hdr[1], r_Str[1]),
             (r_Hdr[2], r_Str[2]),
             (r_Hdr[3], r_Str[3]),
-            (r_Hdr[4], r_Str[4])]
-        
+            (r_Hdr[4], r_Str[4]),
+            (r_Hdr[5], r_Str[5])]
 # columns in list
 total_rows = len(r_matrix)
 total_columns = len(r_matrix[0])
+print(range(total_rows))
 class Table:
      
     def __init__(self,root):
@@ -271,8 +276,11 @@ class Table:
                         else:
                             self.e = Entry(root, width=17, fg='white',
                                 font=('Arial',16,'bold'), bg='red',relief=SUNKEN)
-                            health = 0                            
-                    elif i == 3:
+                            health = 0
+                    if i <= 1:
+                            self.e = Entry(root, width=17, fg='white',
+                               font=('Arial',16,'bold'), bg='green',relief=RAISED)
+                    elif i == 4:
                         print('check')
                         if health == 1:
                             self.e = Entry(root, width=17, fg='white',
@@ -305,7 +313,7 @@ datadb.title("Database")
 
 i=0
 for i, col_name in enumerate(r_Header, start=1):
-    tk.Label(datadb, text=col_name,bg='black', fg='white', font=('Arial',15,'bold')).grid(row=1, column=i, padx=10)
+    tk.Label(datadb, text=col_name,bg='gray', fg='blue', font=('Arial',10,'bold')).grid(row=1, column=i, padx=10)
 
 file1 = open(db_name, 'r')
 Lines = file1.readlines()
@@ -321,12 +329,12 @@ for line in last_lines:
     cs = data.split(",")
     #print("Record{}: {}".format(length, line.strip()))
     for i, col_name in enumerate(cs, start=1):    
-        tk.Label(datadb, text=col_name, fg='black', font=('Arial',15,'bold')).grid(row=count, column=i, padx=10)
+        tk.Label(datadb, text=col_name, fg='black', font=('Arial',10,'bold')).grid(row=count, column=i, padx=10)
 
 file1.close()
 tk.Label(datadb, text="Total Records: "+str(length), fg='blue', font=('Arial',15,'bold')).grid(row=count+1,column=1, padx=10)
 tk.Label(datadb,fg='red').grid(row=count+1, column=4, padx=20)
-
-tk.Button(datadb,text="OK", command=datadb.destroy, fg='yellow', font=('Arial', 15),bg='purple').grid(row=count+2, column=4,padx=10,pady=10, ipadx=10,sticky = 'EW')
+tk.Button(datadb,text="OK", command=datadb.destroy, fg='yellow', font=('Arial', 10),bg='purple').grid(row=count+2, column=4,padx=10,pady=10, ipadx=10,sticky = 'EW')
 
 datadb.mainloop()
+
