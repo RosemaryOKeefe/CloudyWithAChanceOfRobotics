@@ -3,8 +3,13 @@
 # 2/10/2022 : Updated to database
 # 3/01/2022 : Created subroutines and tkinter message boxes
 ####################################
+
+#######################################
+# Import Libraries from Python modules and variables are assigned
+#######################################
 import re
 from re import M
+from tabnanny import check
 from typing import Dict
 import cv2
 from numpy.core.fromnumeric import resize
@@ -21,29 +26,29 @@ import tkinter.messagebox
 import tkinter as tk
 
 #######################################
-# All file names and database names
+# All file names and database names saved at one location
 #######################################
 db_name =r'C:\Users\12086\Documents\python\data\Output_db.csv' # --> Raspberry pi only
 #db_name = r'/home/pi/Desktop/code/data/Output_db.csv'  # --> Used for laptop debug
-img_name = 'data/GB2.jpg'
-#img_name = 'data/image.jpg'
+img_name = 'data/imageh.jpg' 
 img_name_save = 'data/image_box.jpg'
 img_process = 'data/img_process.jpg'
 
 
 #######################################
-## Sub-function in python
+## Sub-routines for the main codes are defined here
+# 
 #######################################
 
-# Display fixed banner image
+#1 Display fixed CWACOR banner with logo
 def WIP(dly, image_display):
     imgp = cv2.imread(image_display,1)
-    #imgr = cv2.resize(imgp,(640,480))
     cv2.imshow('Image Processing', imgp)
     cv2.waitKey(dly)
     cv2.destroyAllWindows()
     return
-# Displays message based on msg
+
+#2 Based on input paramater, messages will be displayed on touch screen 
 def Tkmsgshow(msg):
     pop=Tk()
     pop.geometry('640x200')
@@ -51,7 +56,8 @@ def Tkmsgshow(msg):
     tkinter.messagebox.showinfo("Message",str(msg))
     pop.destroy()
     return
-# Computes to Grams and extracts values
+
+#3 Computes milligrams to Grams and extracts values
 def ret_val(temp_word):
     name_cmp_mg = 'mg'
     name_cmp_g = 'g'
@@ -77,46 +83,37 @@ def ret_val(temp_word):
     return(value_mg)
 
 #######################################
-## Reading out the image
-## improve quality of image
-## Need to make it dynamic based on image quality and size .. To be worked on ... 
+## CV2 Module - Image to Text Conversion
+# Improve readability of the image by resizing and using cubic interpolation
+# Current OEM (OCR Engine Mode) = 3 (Defaul available either neural net or Legacy engine)
+# What do you mean by neural nets?
+#       Neural net behaves like human brain, allowing computer programs to recognize patterns and solve common 
+#       problems in the fields of AI, machine learning, and deep learning
 #######################################
-myconfig = r'-c preserve_interword_spaces=1 --psm 11 --oem 3'
 img = cv2.imread(img_name)
-#img = cv2.imread(img_name, cv2.IMREAD_GRAYSCALE)
-#img = cv2.resize(img, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
 img = cv2.resize(img, None, fx=1.2, fy=1.2, interpolation=cv2.INTER_CUBIC)
-#img = cv2.resize(img, None, fx=1.2, fy=1.2, interpolation=cv2.INTER_LINEAR)
-#adaptive_threshold = cv2.adaptiveThreshold(img,255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY ,85, 11 )
-#height, width, _ = img.shape
-
 resize = cv2.resize(img,(640,480))
 cv2.imshow('Selected Image', resize)
 cv2.waitKey(5000)
 cv2.destroyAllWindows()
 
-# Covert img to text
+myconfig = r'-c preserve_interword_spaces=1 --psm 11 --oem 3'
 text = pytesseract.image_to_string(img,lang='eng',config=myconfig)
 your_string = text
 list_of_words = your_string.split()
 print (list_of_words)
 
-######################################
+#####
 WIP(1000, img_process)
+#####
 
 #######################################
-#Segmenting the label into areas of interest
-#Call subroutine as same function used all time
-# save the values
+#Segmenting the label into areas of interest (Nutrients)
+# 1. Check the strings and compare : Display message if image quality needs improvement
+# 2. Store values and names in array 
 #######################################
 fdstr = ["Protein","Fat","Carb.","Fiber","Sugars"]
 l = len(fdstr)
-
-
-#if all(x in list_of_words for x in fdstr):
-#    print ("works")
-#else:
-#    Tkmsgshow("Few Keyword not found, Start again")
 String_Carb = "Carbohydrate"
 if "Carbohydrate" in list_of_words:
     String_Carb = "Carbohydrate"
@@ -126,9 +123,8 @@ if "Carb." in list_of_words:
     print ("Selected Carb.")    
 fdstr[2] = String_Carb
 
-
 x=0
-while x < l:
+while x < len(fdstr):
     if fdstr[x] in list_of_words:
         print ("yes")
     else:
@@ -173,15 +169,16 @@ r_String = (dt, protein_val, Fat_val,Carb_val,Fiber_val,Sugars_val)
 
 
 #######################################
-# Putting data from code into database
+# Data saved into database
 #######################################
-# Add Header to the file name
 
+# Add Header to the file name
 r_Header = ["ID","Protien","Fat","Carb","Fiber","Sugar" ]
 if False == os.path.exists(db_name):
    with open(db_name, 'w',encoding='UTF8',newline='') as f:
       writer = csv.writer(f)  
       writer.writerow(r_Header)
+
 #Append new data to database
 with open(db_name, 'a',encoding='UTF8',newline='') as f:
    writer = csv.writer(f)
@@ -193,17 +190,12 @@ f.close()
 WIP(1000, img_process)
 
 #############################
-# Display the image to user
+# Display the boxed image to user
 #############################
-#img = cv2.cvtColor(img, 0)
-#kernel = np.ones((1, 1), np.uint8)
-#img = cv2.dilate(img, kernel, iterations=1)
-#img = cv2.erode(img, kernel, iterations=1)
 
 # Code to print boxes in the Image
 height, width, _ = img.shape
 data = pytesseract.image_to_data(img, config=myconfig, output_type=Output.DICT)
-#print (data)
 amount_boxes = len(data['text'])
 for i in range(amount_boxes):
     if float(data['conf'][i]) > 50:
@@ -219,7 +211,7 @@ cv2.destroyAllWindows()
 
 
 ##################################
-#Check : a) food is healthy or not in fiber b) Food category
+# Compute Fiber richness, Fat content and Food categorization
 ##################################
 healthy_fiber = int(Fiber_val)/int(Carb_val)
 if healthy_fiber > 0.1:
@@ -229,17 +221,18 @@ else:
 print(healthy_val)
 food='Pantry Staples'
 if protein_val < 8 and protein_val > 6:
-    print('food is protein')
+    print('Food is protein')
     food = 'Protein'
 if Sugars_val < 45 and Sugars_val > 11:
-    print('food is a Grain')
+    print('Food is a Grain')
     food = 'Grain'
 
 healthy_Fat = int(Fat_val)
-if healthy_Fat > 15:
+print(healthy_Fat)
+if healthy_Fat < 15:
     Satfat = 'Low Saturated Fat'
 else:
-    Satfat = 'Low Saturated Fat'
+    Satfat = 'High Saturated Fat'
 
 r_Hdr = [("Health Status"),('Saturated Fat'),("   ●Carb"),("   ●Fiber"),("Category"),("Database ID")] 
 r_Str = [(healthy_val),(Satfat),(Carb_val),(Fiber_val),(food),(dt)]
@@ -254,7 +247,6 @@ r_matrix = [(r_Hdr[0], r_Str[0]),
 # columns in list
 total_rows = len(r_matrix)
 total_columns = len(r_matrix[0])
-print(range(total_rows))
 class Table:
      
     def __init__(self,root):
@@ -277,11 +269,14 @@ class Table:
                             self.e = Entry(root, width=17, fg='white',
                                 font=('Arial',16,'bold'), bg='red',relief=SUNKEN)
                             health = 0
-                    if i <= 1:
-                            self.e = Entry(root, width=17, fg='white',
-                               font=('Arial',16,'bold'), bg='green',relief=RAISED)
+                    if i == 1:
+                            if Satfat == 'Low Saturated Fat':
+                                self.e = Entry(root, width=17, fg='white',
+                                    font=('Arial',16,'bold'), bg='green',relief=RAISED)
+                            if Satfat == 'High Saturated Fat':
+                                self.e = Entry(root, width=17, fg='white',
+                                    font=('Arial',16,'bold'), bg='red',relief=RAISED)
                     elif i == 4:
-                        print('check')
                         if health == 1:
                             self.e = Entry(root, width=17, fg='white',
                                 font=('Arial',16,'bold'), bg='green',relief=SUNKEN)
@@ -294,17 +289,19 @@ class Table:
 
         tk.Button(root,text="OK", command=root.destroy, fg='yellow', font=('Arial', 16,'bold'),bg='purple').grid(row=6, column=1, padx=10,pady=10, ipadx=40,sticky = 'EW')
 
-# create root window
+##################################
+# Display tkinter Grid : Nutritional Value and Catergory
+##################################
 root = Tk()
 root.title('Nutrient Information')
 
 t = Table(root)
-#root.grid_columnconfigure(1, weight=1)
 root.mainloop()
 
 
 ##################################
-#Display : Database last few records
+# Open database and read last few records to memory
+# Create tkinter Label to display records
 ##################################
 datadb = tk.Tk()
 datadb.geometry("800x250")
@@ -313,7 +310,7 @@ datadb.title("Database")
 
 i=0
 for i, col_name in enumerate(r_Header, start=1):
-    tk.Label(datadb, text=col_name,bg='gray', fg='blue', font=('Arial',10,'bold')).grid(row=1, column=i, padx=10)
+    tk.Label(datadb, text=col_name,bg='black', fg='white', font=('Arial',15,'bold')).grid(row=1, column=i, padx=10)
 
 file1 = open(db_name, 'r')
 Lines = file1.readlines()
@@ -329,12 +326,15 @@ for line in last_lines:
     cs = data.split(",")
     #print("Record{}: {}".format(length, line.strip()))
     for i, col_name in enumerate(cs, start=1):    
-        tk.Label(datadb, text=col_name, fg='black', font=('Arial',10,'bold')).grid(row=count, column=i, padx=10)
+        tk.Label(datadb, text=col_name, fg='black', font=('Arial',15,'bold')).grid(row=count, column=i, padx=10)
 
 file1.close()
 tk.Label(datadb, text="Total Records: "+str(length), fg='blue', font=('Arial',15,'bold')).grid(row=count+1,column=1, padx=10)
 tk.Label(datadb,fg='red').grid(row=count+1, column=4, padx=20)
-tk.Button(datadb,text="OK", command=datadb.destroy, fg='yellow', font=('Arial', 10),bg='purple').grid(row=count+2, column=4,padx=10,pady=10, ipadx=10,sticky = 'EW')
+tk.Button(datadb,text="OK", command=datadb.destroy, fg='yellow', font=('Arial', 15),bg='purple').grid(row=count+2, column=4,padx=10,pady=10, ipadx=10,sticky = 'EW')
 
 datadb.mainloop()
 
+##################################
+# END 
+##################################
