@@ -40,7 +40,18 @@ img_process = 'data/img_process.jpg'
 # 
 #######################################
 
-#1 Display fixed CWACOR banner with logo
+#######
+#1 Guidelines currently used based on Fiber and Carb
+#######
+def Healthy_Fiber_Content (Fiber_Value, Carbohydrate_Value):
+    healthy_val = int(Fiber_Value) / int (Carbohydrate_Value)
+    if healthy_fiber > 0.1: # 10% ratio
+        healthy_val = 'Rich Fiber'
+    else:
+        healthy_val = 'Low Fiber'
+    return(healthy_val)
+
+#2 Display fixed CWACOR banner with logo
 def WIP(dly, image_display):
     imgp = cv2.imread(image_display,1)
     cv2.imshow('Image Processing', imgp)
@@ -48,7 +59,7 @@ def WIP(dly, image_display):
     cv2.destroyAllWindows()
     return
 
-#2 Based on input paramater, messages will be displayed on touch screen 
+#3 Based on input paramater, messages will be displayed on touch screen 
 def Tkmsgshow(msg):
     pop=Tk()
     pop.geometry('640x200')
@@ -57,7 +68,7 @@ def Tkmsgshow(msg):
     pop.destroy()
     return
 
-#3 Computes milligrams to Grams and extracts values
+#4 Computes milligrams to Grams and extracts values
 def ret_val(temp_word):
     name_cmp_mg = 'mg'
     name_cmp_g = 'g'
@@ -87,8 +98,7 @@ def ret_val(temp_word):
 # Improve readability of the image by resizing and using cubic interpolation
 # Current OEM (OCR Engine Mode) = 3 (Defaul available either neural net or Legacy engine)
 # What do you mean by neural nets?
-#       Neural net behaves like human brain, allowing computer programs to recognize patterns and solve common 
-#       problems in the fields of AI, machine learning, and deep learning
+#       Neural net is AI. Neural net behaves like human brain. Neural net is used to here to corret the test based on matching patterns
 #######################################
 img = cv2.imread(img_name)
 img = cv2.resize(img, None, fx=1.2, fy=1.2, interpolation=cv2.INTER_CUBIC)
